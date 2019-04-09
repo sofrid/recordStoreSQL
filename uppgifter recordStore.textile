@@ -1,0 +1,240 @@
+-- Create database for record store, recordStore
+CREATE DATABASE recordStore;
+
+-- Create tables for Genra, Artist, Record, medverkande and recordMedverkande
+CREATE TABLE genra(
+  genraId INT NOT NULL AUTO_INCREMENT,
+  genraName VARCHAR(50),
+  PRIMARY KEY (genraId)
+);
+CREATE TABLE artist(
+  artistId INT NOT NULL AUTO_INCREMENT,
+  artistName VARCHAR(50),
+  PRIMARY KEY (artistId)
+);
+CREATE TABLE record(
+  recordId INT NOT NULL AUTO_INCREMENT,
+  recordName VARCHAR(50),
+  recordDate INT,
+  recordArtistId INT,
+  recordGenraId INT,
+  PRIMARY KEY (recordId),
+  FOREIGN KEY (recordArtistId) REFERENCES artist(artistId),
+  FOREIGN KEY (recordGenraId) REFERENCES genra(genraId)
+);
+CREATE TABLE medverkande(
+  medverkandeId INT NOT NULL AUTO_INCREMENT,
+  medverkandeName VARCHAR(50),
+  medverkandeType VARCHAR(50),
+  PRIMARY KEY (medverkandeId)
+);
+CREATE TABLE recordMedverkande(
+  recordMedverkandeId INT NOT NULL AUTO_INCREMENT,
+  recordMedverkandeRId INT,
+  recordMedverkandeMId INT,
+  PRIMARY KEY (recordMedverkandeId),
+  FOREIGN KEY (recordMedverkandeRId) REFERENCES record(recordId),
+  FOREIGN KEY (recordMedverkandeMId) REFERENCES medverkande(medverkandeId)
+);
+
+-- Filling the tables with some relevant data
+INSERT INTO genra(genraName) VALUES ('Black metal'),
+                                    ('Death metal'),
+                                    ('Rock'),
+                                    ('Heavy metal'),
+                                    ('Rock n roll');
+
+INSERT INTO artist(artistName) VALUES ('Obituary'),
+                                      ('Behemoth'),
+                                      ('Iron Maiden'),
+                                      ('Bruce Springsteen'),
+                                      ('Motörhead'),
+                                      ('Judas Priest'),
+                                      ('Nile'),
+                                      ('Immortal'),
+                                      ('Thin Lizzy');
+
+INSERT INTO record(recordName, recordDate, recordArtistId, recordGenraId) VALUES ('Ace of Spades','1980',5,5),
+                                                                                 ('Iron Fist','1982',5,5),
+                                                                                 ('In Their Darkened Shrines','2002',7,2),
+                                                                                 ('Worshi The Animal','1994',7,2),
+                                                                                 ('Painkiller','1990',6,4),
+                                                                                 ('British Steel','1980',6,4),
+                                                                                 ('Slowly We Rot','1989',1,2),
+                                                                                 ('Inked in Blood','2014',1,2),
+                                                                                 ('Fear of the Dark','1992',3,4),
+                                                                                 ('Somewhere Back in Time','2008',3,4),
+                                                                                 ('All Shall Fall','2009',8,1),
+                                                                                 ('Northern Chaos Gods','2018',8,1),
+                                                                                 ('Born to Run','1975',4,3),
+                                                                                 ('High Hopes','2014',4,3),
+                                                                                 ('I Loved You At Your Darkest','2018',2,1),
+                                                                                 ('The Satanist','2014',2,1),
+                                                                                 ('Jailbreak','1976',9,3),
+                                                                                 ('Bad Reputation','1977',9,3);
+
+INSERT INTO medverkande(medverkandeName, medverkandeType) VALUES ('Dave','Mix'),
+                                                                 ('Micke','Sound'),
+                                                                 ('Rita','Controll'),
+                                                                 ('Jess','Production');
+
+INSERT INTO recordMedverkande(recordMedverkandeRId,recordMedverkandeMId) VALUES (1,2),
+                                                                                (2,4),
+                                                                                (2,3),
+                                                                                (3,3),
+                                                                                (4,1),
+                                                                                (4,2),
+                                                                                (5,4),
+                                                                                (6,1),
+                                                                                (6,2),
+                                                                                (6,3),
+                                                                                (6,4),
+                                                                                (7,3),
+                                                                                (8,2),
+                                                                                (9,4),
+                                                                                (9,2),
+                                                                                (10,1),
+                                                                                (11,2),
+                                                                                (11,3),
+                                                                                (12,4),
+                                                                                (12,3),
+                                                                                (13,2),
+                                                                                (14,4),
+                                                                                (15,2),
+                                                                                (15,3),
+                                                                                (15,4),
+                                                                                (15,1),
+                                                                                (16,2),
+                                                                                (17,4),
+                                                                                (18,3),
+                                                                                (18,1);
+
+-- If something is wrong or you want to change a table drop it (and then create it again with create table)
+-- It deletes the table so only use if you have to!
+DROP TABLE genra;
+DROP TABLE artist;
+DROP TABLE record;
+DROP TABLE medverkande;
+DROP TABLE recordMedverkande;
+
+-- Show unique artist from table record (will show 9)
+SELECT DISTINCT recordArtistId FROM record;
+
+-- Show records with Iron Maiden or Motörhead
+SELECT * FROM record 
+WHERE recordArtistId=3 OR recordArtistId=5;
+
+-- ADD column recordPrice INT to table record
+ALTER TABLE record ADD recordPrice INT; 
+
+-- Update some records with Price in the new column recordPrice
+UPDATE record
+SET recordPrice = 110
+WHERE recordId = 6;
+
+UPDATE record
+SET recordPrice = 120
+WHERE recordId = 3;
+
+UPDATE record
+SET recordPrice = 130
+WHERE recordId = 5;
+
+UPDATE record
+SET recordPrice = 140
+WHERE recordId = 2;
+
+UPDATE record
+SET recordPrice = 150
+WHERE recordId = 1;
+
+-- Show the records that have a price that is not noll
+SELECT recordName AS Record
+FROM record
+WHERE recordPrice IS NOT NULL;
+
+-- Update record 14 to Devils & Dust from 2005 with price 135
+UPDATE record
+SET recordName='Devils & Dust', recordDate='2005', recordPrice=135
+WHERE recordId=14;
+
+-- Show averege price for records that cost more than 130
+SELECT AVG(recordPrice)
+FROM record 
+WHERE recordPrice > 130;
+
+-- Use inner join to show records that are in the category 'Blackmetal'
+SELECT record.recordName, genra.genraName
+FROM record
+INNER JOIN genra ON record.recordGenraId = genra.genraId
+WHERE genraId = 1;
+
+-- Show all records and medverkande from Sound 
+SELECT recordName AS Skiva, recordMedverkandeId AS Idnr, medverkandeName AS Bidragande
+FROM record
+LEFT JOIN recordMedverkande
+ON recordMedverkande.recordMedverkandeRId = record.recordId
+LEFT JOIN medverkande
+ON medverkande.medverkandeId = recordMedverkande.recordMedverkandeMId
+WHERE medverkandeType = 'Sound';
+
+-- Create view of Artist name, record name and name of medverkande from genra Death metal
+CREATE VIEW showDeathMetal AS
+SELECT record.recordName, genra.genraName, artist.artistName, recordMedverkande.recordMedverkandeId, medverkande.medverkandeName
+FROM record
+INNER JOIN genra ON record.recordGenraId = genra.genraId
+INNER JOIN artist ON record.recordArtistId = artist.artistId
+INNER JOIN recordMedverkande ON record.recordId = recordMedverkande.recordMedverkandeRId
+INNER JOIN medverkande ON recordMedverkande.recordMedverkandeMId = medverkande.medverkandeId
+WHERE genraName = 'Death metal';
+
+-- If anything is wrong, drop table and then create it again
+DROP VIEW showDeathMetal;
+
+-- Show view showDeathMetal
+SELECT * FROM showDeathMetal;
+
+-- Create view of records sorted by genra
+CREATE VIEW showRecordsByGenra AS
+SELECT genra.genraName, record.recordName, artist.artistName
+FROM record
+INNER JOIN genra ON record.recordGenraId = genra.genraId
+INNER JOIN artist ON record.recordArtistId = artist.artistId
+ORDER BY genraName;
+
+-- Show view showRecordsByGenra
+SELECT * FROM showRecordsByGenra;
+
+-- Create a procedure to show artists
+DELIMITER //
+CREATE PROCEDURE selectArtist()
+  BEGIN
+  SELECT * FROM artist;
+  END //
+
+-- Run the Stored Procedure selectArtist()
+CALL selectArtist();
+
+-- Deletes the stored procedure selectArtist()
+DROP PROCEDURE IF EXISTS selectArtist;
+
+-- Create a procedure to show how many records there is in a genra
+DELIMITER //
+CREATE PROCEDURE countInGenra(
+  IN genra VARCHAR(50),
+  OUT total INT)
+BEGIN
+  SELECT count(*)
+    INTO total
+    FROM genra
+INNER JOIN record
+ON genra.genraId = record.recordGenraId
+WHERE genraName = genra;
+END //
+
+-- Run stored procedure countInGenra() to see the number of records in Heavy Metal
+CALL countInGenra('Heavy metal',@total);
+SELECT @total;
+
+-- Deletes stored procedure countInGenra
+DROP PROCEDURE IF EXISTS countInGenra;
